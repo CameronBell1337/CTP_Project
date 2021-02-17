@@ -15,12 +15,8 @@ public class MouseMovement : MonoBehaviour
         input = FindObjectOfType<PlayerInput>();
         Cursor.lockState = CursorLockMode.Locked;
     }
-
-    // Update is called once per frame
-    void Update()
+    public void MouseInput()
     {
-        
-
         xRotation -= input.mouseY;
         xRotation = Mathf.Clamp(xRotation, -89f, 89f);
 
