@@ -15,7 +15,7 @@ public class CurveEditor : Editor
 	const float stallPadding = 0.1f;
 	const float liftPadding = 0.01f;
 
-	//multipliers
+	//Force multipliers
 	private float nAoAM = 1.0f;
 	private float fPM = 1.0f;
 
@@ -35,13 +35,18 @@ public class CurveEditor : Editor
 		EditorGUILayout.Space();
 		EditorGUILayout.LabelField("Lift curve parameters", EditorStyles.boldLabel);
 
-		defaultAoALift = EditorGUILayout.FloatField(new GUIContent("Lift at Zero AOA: ", defaultAoALiftDesc), defaultAoALift);
-		maxLiftPositive = EditorGUILayout.FloatField(new GUIContent("Lift at Critical: ", MaxLiftPosDesc), maxLiftPositive);
-		minLiftPositive = EditorGUILayout.FloatField(new GUIContent("Lift when in stall: ", MinLiftPosDesc), minLiftPositive);
+		defaultAoALift = EditorGUILayout.FloatField(
+			new GUIContent("Lift at Zero AOA: ", defaultAoALiftDesc), defaultAoALift);
+		maxLiftPositive = EditorGUILayout.FloatField(
+			new GUIContent("Lift at Critical: ", MaxLiftPosDesc), maxLiftPositive);
+		minLiftPositive = EditorGUILayout.FloatField(
+			new GUIContent("Lift when in stall: ", MinLiftPosDesc), minLiftPositive);
 
 		EditorGUILayout.Space();
-		criticalAngle = EditorGUILayout.FloatField(new GUIContent("Critical AoA: ", CriticalDesc), criticalAngle);
-		stallingAngle = EditorGUILayout.FloatField(new GUIContent("Fully stalled AoA: ", stallingAngleDesc), stallingAngle);
+		criticalAngle = EditorGUILayout.FloatField(
+			new GUIContent("Critical AoA: ", CriticalDesc), criticalAngle);
+		stallingAngle = EditorGUILayout.FloatField(
+			new GUIContent("Fully stalled AoA: ", stallingAngleDesc), stallingAngle);
 
 		bool createCurve = GUILayout.Button("Create new Curve.");
 

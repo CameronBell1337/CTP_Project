@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AircraftController : MonoBehaviour
 {
-    private Rigidbody bod;
+    public Rigidbody bod { get; internal set; }
 
     [Header("Tail")]
     public WingSurface rudder;
@@ -16,9 +16,11 @@ public class AircraftController : MonoBehaviour
     public WingSurface aileronRight;
     public WingSurface flapLeft;
     public WingSurface flapRight;
+
+    [Header("")]
     [Space()]
     public float thrust = 6000f;
-    public float throttle = 1f;
+    public float power = 0f;
     public bool isDown = false;
     void Awake()
     {
@@ -67,12 +69,6 @@ public class AircraftController : MonoBehaviour
             rightElevator.targetDeflec = -Input.GetAxis("Pitch");
         }
 
-        if (leftElevator != null && rightElevator != null)
-        {
-            leftElevator.targetDeflec = -Input.GetAxis("Pitch");
-            rightElevator.targetDeflec = -Input.GetAxis("Pitch");
-        }
-
         if (flapLeft != null && flapRight != null)
         {
             
@@ -84,17 +80,9 @@ public class AircraftController : MonoBehaviour
             {
                 isDown = false;
             }
-
-            if(isDown)
-            {
-                flapLeft.targetDeflec = -1f;
-                flapRight.targetDeflec = -1f;
-            }
-            else
-            {
-                flapLeft.targetDeflec = 0f;
-                flapRight.targetDeflec = 0f;
-            }
+            flapLeft.targetDeflec = isDown ? -1 : 0;
+            flapRight.targetDeflec = isDown ? -1 : 0;
+            
         }
 
         if(aileronLeft != null)
@@ -106,15 +94,17 @@ public class AircraftController : MonoBehaviour
             aileronRight.targetDeflec = Input.GetAxis("Roll");
         }
 
-        throttle += Input.GetAxis("Mouse1") * Time.deltaTime;
-        throttle -= Input.GetAxis("Mouse2") * Time.deltaTime;
-        throttle = Mathf.Clamp01(throttle);
+        power += Input.GetAxis("Mouse1") * Time.deltaTime;
+        power -= Input.GetAxis("Mouse2") * Time.deltaTime;
+        power = Mathf.Clamp01(power);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        //if(throttle)
-        bod.AddRelativeForce(Vector3.forward * thrust * throttle, ForceMode.Force);
+        if (power > 0)
+        {
+            bod.AddRelativeForce(Vector3.forward * thrust * power, ForceMode.Force);
+        }
     }
 }

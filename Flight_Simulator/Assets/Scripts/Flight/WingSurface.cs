@@ -20,9 +20,8 @@ public class WingSurface : MonoBehaviour
     [Tooltip("Access to the wing control surface may be attached too.")]
     private WingController wing = null;
 
-
     public float maxForce = 5000f;
-
+    
 
     private Rigidbody rig = null;
     private Quaternion sLocRot = Quaternion.identity;
@@ -44,9 +43,10 @@ public class WingSurface : MonoBehaviour
 
     private void FixedUpdate()
     {
+      
         // Different angles depending on positive or negative deflection.
         float targetAngle = targetDeflec > 0f ? targetDeflec * maxDeflectionAtPos : targetDeflec * minDeflectionAtNeg;
-
+      
         // How much you can deflect, depends on how much force it would take
         if (rig != null && wing != null && rig.velocity.sqrMagnitude > 1f)
         {

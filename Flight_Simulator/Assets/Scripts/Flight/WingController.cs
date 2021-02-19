@@ -8,9 +8,9 @@ public class WingController : MonoBehaviour
     //A = span * cord
     //A = .5 * (chortTip + chordRoot) * Semi-Span
     //A = .5 *
-
-
     //AR = legnth^2 / WingArea
+
+
     [SerializeField]
     [Tooltip("Dimention of each wing")]
     private Vector2 wingDimention = new Vector2(0f, 0f);
@@ -18,7 +18,11 @@ public class WingController : MonoBehaviour
     [Tooltip("Flight Curve")]
     public FlightCurve wing;
 
+    [Tooltip("Apply to Global or Local COM")]
     public bool applyToCentre = false;
+
+    [Tooltip("Apply to flaps ONLY!")]
+    public bool isFlap = false;
 
     private float lm = 1f;
     private float dm = 1f;
@@ -26,17 +30,13 @@ public class WingController : MonoBehaviour
     private Rigidbody bod;
 
     private float AR;
-
     private float lCoeff = 0f;
     private float dCoeff = 0f;
-
     private float lift = 0f;
     private float drag = 0f;
-
     private float AoA = 0f;
 
     private Vector3 liftDir = Vector3.up;
-
 
     //Getters
     #region Getters
@@ -80,15 +80,24 @@ public class WingController : MonoBehaviour
     {
         get { return drag; }
     }
+
+    public Rigidbody Bod
+    {
+        set { bod = value; }
+    }
     #endregion
 
-
+    private void Awake()
+    {
+        bod = GetComponentInParent<Rigidbody>();
+    }
 
     private void FixedUpdate()
     {
         Vector3 ForceApply = (applyToCentre) ? bod.transform.TransformPoint(bod.centerOfMass) : transform.position;
-        
-        Vector3 localVelocity = transform.InverseTransformDirection(bod.GetPointVelocity(transform.position));
+
+        //Check f it is a flap as will want to apply to same direction flap is rotating towards rather than opposite.
+        Vector3 localVelocity = isFlap ? transform.TransformDirection(bod.GetPointVelocity(transform.position)) : transform.InverseTransformDirection(bod.GetPointVelocity(transform.position));
         localVelocity.x = 0f;
 
         AoA = Vector3.Angle(Vector3.forward, localVelocity);
@@ -135,13 +144,6 @@ public class WingController : MonoBehaviour
 
     }
 
-
-    private void Awake()
-    {
-        bod = GetComponentInParent<Rigidbody>();
-    }
-
-
     private float CalculateLift(Vector3 localVel, float lCoeff)
     {
         lift = localVel.sqrMagnitude * lCoeff * GetWingArea * lm;
@@ -161,28 +163,25 @@ public class WingController : MonoBehaviour
         return AoA;
     }
 
-
-
-
-
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
-
         Matrix4x4 oldMatrix = Gizmos.matrix;
-
+        if (bod != null)
+        {
+            if (applyToCentre)
+            {
+                Gizmos.color = Color.white;
+                Gizmos.DrawWireSphere(bod.transform.TransformPoint(bod.centerOfMass), .2f);
+            }
+            else
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(transform.position, .2f);
+            }
+        }
         Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
-        if (applyToCentre)
-        {
-            Gizmos.color = Color.white;
-        }
-        else
-        {
-            Gizmos.color = Color.red;
-        }
-
         Gizmos.DrawCube(Vector3.zero, new Vector3(wingDimention.x, 0f, wingDimention.y));
-
         Gizmos.matrix = oldMatrix;
     }
 #endif
