@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(FlightCurve))]
 public class CurveEditor : Editor
 {
@@ -24,6 +25,7 @@ public class CurveEditor : Editor
 	const string MinLiftPosDesc = "Lift coeffient when the wing is fully stalled at a positive angle of attack.";
 	const string CriticalDesc = "Critical angle of attack is both the angle at which the wing starts to stall, and the angle at which it produces the most lift.";
 	const string stallingAngleDesc = "Angle of attack at which the wing is fully stalled and producing the minimum lift.";
+
 
 
 	public override void OnInspectorGUI()
@@ -81,6 +83,8 @@ public class CurveEditor : Editor
         }
 	}
 
-	
+
+
 
 }
+#endif

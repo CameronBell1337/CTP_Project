@@ -82,7 +82,7 @@ public class WingController : MonoBehaviour
         get { return drag; }
     }
     #endregion
-
+    
 
 
     private void FixedUpdate()
