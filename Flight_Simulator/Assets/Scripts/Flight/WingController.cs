@@ -37,6 +37,7 @@ public class WingController : MonoBehaviour
 
     private Vector3 liftDir = Vector3.up;
 
+    public Vector3 test;
 
     //Getters
     #region Getters
@@ -86,7 +87,9 @@ public class WingController : MonoBehaviour
 
     private void FixedUpdate()
     {
+
         Vector3 ForceApply = (applyToCentre) ? bod.transform.TransformPoint(bod.centerOfMass) : transform.position;
+        test = ForceApply;
         
         Vector3 localVelocity = transform.InverseTransformDirection(bod.GetPointVelocity(transform.position));
         localVelocity.x = 0f;

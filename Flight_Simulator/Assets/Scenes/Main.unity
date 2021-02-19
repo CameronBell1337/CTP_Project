@@ -170,6 +170,7 @@ MonoBehaviour:
   wingDimention: {x: 2, y: 0.3}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 0
+  test: {x: 0, y: 0, z: 0}
 --- !u!114 &8160482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,6 +290,7 @@ MonoBehaviour:
   wingDimention: {x: 1.4, y: 0.35}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 0
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &79394015
 GameObject:
   m_ObjectHideFlags: 0
@@ -544,6 +546,7 @@ MonoBehaviour:
   wingDimention: {x: 1.4, y: 0.5}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 1
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &338984646
 GameObject:
   m_ObjectHideFlags: 0
@@ -590,6 +593,7 @@ MonoBehaviour:
   wingDimention: {x: 1.7, y: 1.3}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 1
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &339935551
 GameObject:
   m_ObjectHideFlags: 0
@@ -774,6 +778,7 @@ MonoBehaviour:
   wingDimention: {x: 6.3, y: 0.9}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 1
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &429201921
 GameObject:
   m_ObjectHideFlags: 0
@@ -821,6 +826,7 @@ MonoBehaviour:
   wingDimention: {x: 1.7, y: 0.4}
   wing: {fileID: 11400000, guid: e89ebb7771cc2524fa52c89c3780735d, type: 2}
   applyToCentre: 0
+  test: {x: 0, y: 0, z: 0}
 --- !u!114 &429201924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -885,6 +891,7 @@ MonoBehaviour:
   wingDimention: {x: 2, y: 1.4}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 1
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &435088175
 GameObject:
   m_ObjectHideFlags: 0
@@ -1175,6 +1182,7 @@ MonoBehaviour:
   wingDimention: {x: 1.4, y: 0.5}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 1
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &622244534
 GameObject:
   m_ObjectHideFlags: 0
@@ -1416,6 +1424,7 @@ MonoBehaviour:
   wingDimention: {x: 2, y: 1.4}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 1
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &905208833
 GameObject:
   m_ObjectHideFlags: 0
@@ -1462,6 +1471,7 @@ MonoBehaviour:
   wingDimention: {x: 1.7, y: 0.7}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 1
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &944679031
 GameObject:
   m_ObjectHideFlags: 0
@@ -1733,6 +1743,7 @@ MonoBehaviour:
   wingDimention: {x: 1.7, y: 0.3}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 0
+  test: {x: 0, y: 0, z: 0}
 --- !u!114 &968074281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1797,6 +1808,7 @@ MonoBehaviour:
   wingDimention: {x: 6.3, y: 0.9}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 1
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &1072615102
 GameObject:
   m_ObjectHideFlags: 0
@@ -2096,6 +2108,7 @@ MonoBehaviour:
   wingDimention: {x: 2, y: 0.3}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 0
+  test: {x: 0, y: 0, z: 0}
 --- !u!114 &1215355177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2256,6 +2269,7 @@ MonoBehaviour:
   wingDimention: {x: 1.7, y: 0.4}
   wing: {fileID: 11400000, guid: e89ebb7771cc2524fa52c89c3780735d, type: 2}
   applyToCentre: 0
+  test: {x: 0, y: 0, z: 0}
 --- !u!114 &1526043410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2588,6 +2602,7 @@ MonoBehaviour:
   wingDimention: {x: 1.7, y: 1.3}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 1
+  test: {x: 0, y: 0, z: 0}
 --- !u!1 &1970233211
 GameObject:
   m_ObjectHideFlags: 0
@@ -2633,7 +2648,7 @@ GameObject:
   - component: {fileID: 1972389815}
   - component: {fileID: 1972389817}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: Aircraft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2908,6 +2923,7 @@ MonoBehaviour:
   wingDimention: {x: 1.4, y: 0.35}
   wing: {fileID: 11400000, guid: ce66321a2d2a7484290e8b48cf3cde3d, type: 2}
   applyToCentre: 0
+  test: {x: 0, y: 0, z: 0}
 --- !u!114 &2053831923
 MonoBehaviour:
   m_ObjectHideFlags: 0
