@@ -5,31 +5,41 @@ using UnityEngine;
 public class WingController : MonoBehaviour
 {
 
-    //A = span * cord
+    //A = span^2 * cord
     //A = .5 * (chortTip + chordRoot) * Semi-Span
     //A = .5 *
     //AR = legnth^2 / WingArea
 
 
-    [SerializeField]
+    [Header("Wing Specs")]
+    public float AR;
     [Tooltip("Dimention of each wing")]
-    private Vector2 wingDimention = new Vector2(0f, 0f);
+    public Vector2 wingDimention = new Vector2(0f, 0f);
+    public bool autoAR = false;
+
+    [Header("Control Surfaces")]
+    [Tooltip("Apply to Global or Local COM")]
+    public bool applyToCentre = false;
+    [Tooltip("Apply to flaps ONLY!")]
+    public bool isFlap = false;
+    [Tooltip("Apply to Rudder ONLY!")]
+    public bool isRudder = false;
 
     [Tooltip("Flight Curve")]
     public FlightCurve wing;
 
-    [Tooltip("Apply to Global or Local COM")]
-    public bool applyToCentre = false;
+    
 
-    [Tooltip("Apply to flaps ONLY!")]
-    public bool isFlap = false;
+    
 
+
+    //********** PRIVATE VARIABLES **********//
     private float lm = 1f;
     private float dm = 1f;
 
     private Rigidbody bod;
 
-    private float AR;
+    
     private float lCoeff = 0f;
     private float dCoeff = 0f;
     private float lift = 0f;
@@ -90,14 +100,24 @@ public class WingController : MonoBehaviour
     private void Awake()
     {
         bod = GetComponentInParent<Rigidbody>();
+        if (autoAR) { AR = wingDimention.x / wingDimention.y; }
+
+        //wing.IsRudder
     }
 
     private void FixedUpdate()
     {
+        
         Vector3 ForceApply = (applyToCentre) ? bod.transform.TransformPoint(bod.centerOfMass) : transform.position;
+        
 
         //Check f it is a flap as will want to apply to same direction flap is rotating towards rather than opposite.
         Vector3 localVelocity = isFlap ? transform.TransformDirection(bod.GetPointVelocity(transform.position)) : transform.InverseTransformDirection(bod.GetPointVelocity(transform.position));
+
+        //takes predicted and current vel and averages
+        Vector3 predictVel = bod.velocity + Time.deltaTime * 0.5f * ForceApply / bod.mass;
+        Vector3 averageVel = (localVelocity + predictVel) * 0.5f;
+
         localVelocity.x = 0f;
 
         AoA = Vector3.Angle(Vector3.forward, localVelocity);
@@ -171,7 +191,7 @@ public class WingController : MonoBehaviour
         {
             if (applyToCentre)
             {
-                Gizmos.color = Color.white;
+                Gizmos.color = Color.blue;
                 Gizmos.DrawWireSphere(bod.transform.TransformPoint(bod.centerOfMass), .2f);
             }
             else

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class AircraftController : MonoBehaviour
 {
@@ -17,19 +18,53 @@ public class AircraftController : MonoBehaviour
     public WingSurface flapLeft;
     public WingSurface flapRight;
 
-    [Header("")]
+    [Header("Wheels")]
+    public List<WheelCollider> wheels;
+    public float breakTorque = 100f;
+
+    [Header("Engine")]
+    public GameObject[] propeller;
+    public float EngineRPM;
+
+
+    [Header("Aircraft Parameters")]
     [Space()]
     public float thrust = 6000f;
     public float power = 0f;
-    public bool isDown = false;
-    void Awake()
+    public float weight = 1500.0f;
+
+    public flapState currentFlapState = flapState.normal;
+    public enum flapState
     {
-        bod = GetComponent<Rigidbody>();   
+        normal = 0,
+        lowered = 1,
+        raised = 2
     }
 
-    private void Start()
+
+
+    private float scrollSens = 2.0f;
+    private float zAngle;
+    private float previousZEuler = 0;
+    private float currentZEuler = 0;
+
+    private int flapToggleInt = 0;
+
+    public AudioSource mixer;
+
+    void InitPlane()
     {
-        if(rudder == null)
+        if (rudder != null)
+        {
+            rudder.IsRudder = true;
+        }
+
+        if (aileronRight != null)
+        {
+            aileronRight.IsInverse = true;
+        }
+
+        if (rudder == null)
         {
             Debug.LogWarning("No Rudder found!");
         }
@@ -55,6 +90,18 @@ public class AircraftController : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        InitPlane();
+        bod = GetComponent<Rigidbody>();
+        power = 0;
+        bod.mass = weight;
+        mixer.pitch = 0;
+        StartCoroutine(ToggleFLap());
+
+
+    }
+
     private void Update()
     {
 
@@ -69,20 +116,22 @@ public class AircraftController : MonoBehaviour
             rightElevator.targetDeflec = -Input.GetAxis("Pitch");
         }
 
+        if (wheels != null)
+        {
+            if(Input.GetKeyDown(KeyCode.B))
+            {
+                breakTorque = breakTorque > 0 ? 0 : 100.0f;
+            }
+        }
+
         if (flapLeft != null && flapRight != null)
         {
-            
-            if (Input.GetButtonDown("Flap") && !isDown)
+            if (Input.GetButtonDown("Flap"))
             {
-                isDown = true;
-            }
-            else if(Input.GetButtonDown("Flap") && isDown)
-            {
-                isDown = false;
-            }
-            flapLeft.targetDeflec = isDown ? -1 : 0;
-            flapRight.targetDeflec = isDown ? -1 : 0;
-            
+
+                StartCoroutine(ToggleFLap());
+                
+            } 
         }
 
         if(aileronLeft != null)
@@ -94,17 +143,109 @@ public class AircraftController : MonoBehaviour
             aileronRight.targetDeflec = Input.GetAxis("Roll");
         }
 
-        power += Input.GetAxis("Mouse1") * Time.deltaTime;
-        power -= Input.GetAxis("Mouse2") * Time.deltaTime;
+        power += 1f * scrollSens * Input.GetAxis("MWheelD") * Time.deltaTime;
         power = Mathf.Clamp01(power);
+
+
+        
+        
+
+        if (mixer.pitch >= 1.6)
+        {
+            mixer.pitch = 1.6f;
+        }
+        else
+        {
+            mixer.pitch = zAngle /10;
+        }
+        
+
+
+
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (power > 0)
+
+        CalculateRPM();
+
+        if (EngineRPM > 130)
         {
-            bod.AddRelativeForce(Vector3.forward * thrust * power, ForceMode.Force);
+            bod.AddRelativeForce(Vector3.forward * (thrust * power), ForceMode.Force);
         }
+
+        foreach (var wheel in wheels)
+        {
+            //stops wheels from getting stuck and not moving when at 0 vel
+            wheel.brakeTorque = breakTorque;
+            wheel.motorTorque = 0.01f;
+        }
+    }
+
+
+    void CalculateRPM()
+    {
+        
+        currentZEuler = propeller[0].transform.localRotation.eulerAngles.z;
+        
+        float degreesPerSec = Mathf.Abs(currentZEuler - previousZEuler) / Time.fixedDeltaTime;
+        //0.166666666667f is from a webstie for calculating rpm from Deg/Sec
+        EngineRPM = 0.166666666667f * degreesPerSec;
+        Mathf.Floor(EngineRPM);
+        previousZEuler = currentZEuler;
+
+        if (power == 0 && EngineRPM <=45)
+        {
+            zAngle = 0;
+        }
+        else
+        {
+            zAngle = Mathf.LerpAngle(zAngle, (thrust*2) * power * Time.deltaTime, Time.deltaTime / propeller[0].transform.localRotation.eulerAngles.z);
+
+            foreach (var i in propeller)
+            {
+                i.transform.Rotate(0.0f, 0.0f, zAngle, Space.Self);
+            }
+        }
+
+      
+        
+    }
+
+
+    IEnumerator ToggleFLap()
+    {
+        if (flapToggleInt > 2)
+        {
+            flapToggleInt = 0;
+        }
+
+        switch (flapToggleInt)
+        {
+            case 0:
+                {
+                    currentFlapState = flapState.normal;
+                    flapLeft.targetDeflec = 0;
+                    flapRight.targetDeflec = 0;
+                    break;
+                }
+            case 1:
+                {
+                    currentFlapState = flapState.lowered;
+                    flapLeft.targetDeflec = -1;
+                    flapRight.targetDeflec = -1;
+                    break;
+                }
+            case 2:
+                {
+                    currentFlapState = flapState.raised;
+                    flapLeft.targetDeflec = 1;
+                    flapRight.targetDeflec = 1;
+                    break;
+                }
+        }
+        yield return new WaitForSeconds(.1f);
+        flapToggleInt++;
     }
 }

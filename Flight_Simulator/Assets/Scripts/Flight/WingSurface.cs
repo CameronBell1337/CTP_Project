@@ -20,14 +20,19 @@ public class WingSurface : MonoBehaviour
     [Tooltip("Access to the wing control surface may be attached too.")]
     private WingController wing = null;
 
+    [Tooltip("Max force surface can stand before controls 'stiffen up'")]
     public float maxForce = 5000f;
-    
+
+    public GameObject controlSurfaceBody = null;
+    public bool IsRudder { get; set; }
+
+    public bool IsInverse { get; set; }
+
 
     private Rigidbody rig = null;
     private Quaternion sLocRot = Quaternion.identity;
 
     private float aoa = 0f;
-
 
     private void Awake()
     {
@@ -35,6 +40,10 @@ public class WingSurface : MonoBehaviour
         {
             rig = GetComponentInParent<Rigidbody>();
         }
+
+        IsRudder = false;
+        IsInverse = false;
+
     }
     private void Start()
     {
@@ -43,27 +52,53 @@ public class WingSurface : MonoBehaviour
 
     private void FixedUpdate()
     {
-      
+
         // Different angles depending on positive or negative deflection.
         float targetAngle = targetDeflec > 0f ? targetDeflec * maxDeflectionAtPos : targetDeflec * minDeflectionAtNeg;
-      
+        //move models controls surfaces
+        AnimateControlSurfaces(targetAngle);
+    
         // How much you can deflect, depends on how much force it would take
         if (rig != null && wing != null && rig.velocity.sqrMagnitude > 1f)
         {
             float torqueAtMaxDeflection = rig.velocity.sqrMagnitude * wing.GetWingArea;
             float maxAvailableDeflection = Mathf.Asin(maxForce / torqueAtMaxDeflection) * Mathf.Rad2Deg;
 
-            // Asin(x) where x > 1 or x < -1 is not a number.
+            // Asin(x) checks if x > 1 or x < -1 is not a number.
             if (float.IsNaN(maxAvailableDeflection) == false)
                 targetAngle *= Mathf.Clamp01(maxAvailableDeflection);
         }
 
-        
+        //calculates the angle of attack
         aoa = Mathf.MoveTowards(aoa, targetAngle, rotSpeed * Time.fixedDeltaTime);
 
-        
+
         transform.localRotation = sLocRot;
         transform.Rotate(Vector3.right, aoa, Space.Self);
     }
 
+
+    void AnimateControlSurfaces(float targetAngle)
+    {
+        /* Little Dirty
+         * TODO - Make cleaner solution
+         */
+        if (controlSurfaceBody != null)
+        {
+            if (!IsRudder)
+            {
+                controlSurfaceBody.transform.localRotation = Quaternion.Euler(-90 + targetAngle, 0, 0);
+            }
+            else if(IsRudder && !IsInverse)
+            {
+                controlSurfaceBody.transform.localRotation = Quaternion.Euler(0, -90 + targetAngle, 0);
+            }
+
+            if(IsInverse && !IsRudder)
+            {
+                controlSurfaceBody.transform.localRotation = Quaternion.Euler(-90 + targetAngle, 0 , 180);
+            }
+       
+        }
+    }
 }
