@@ -26,9 +26,9 @@ public class PlayerInput : MonoBehaviour
     {
         while (canInput)
         {
-            inputJump = Input.GetButtonDown("Jump");
-            horizontal = Input.GetAxisRaw("Horizontal");
-            vertical = Input.GetAxisRaw("Vertical");
+           // inputJump = Input.GetButtonDown("Jump");
+            //horizontal = Input.GetAxisRaw("Horizontal");
+            //vertical = Input.GetAxisRaw("Vertical");
 
             if (canAim)
             {

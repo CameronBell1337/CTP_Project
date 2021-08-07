@@ -23,6 +23,8 @@ public class WingSurface : MonoBehaviour
     [Tooltip("Max force surface can stand before controls 'stiffen up'")]
     public float maxForce = 5000f;
 
+    public Vector3 controlSurfacesOrientation;
+
     public GameObject controlSurfaceBody = null;
     public bool IsRudder { get; set; }
 
@@ -32,7 +34,14 @@ public class WingSurface : MonoBehaviour
     private Rigidbody rig = null;
     private Quaternion sLocRot = Quaternion.identity;
 
+    //float direction for smooth lerping between old and new value
     private float aoa = 0f;
+    private float flap = 0;
+    private float aileron = 0;
+    private float rudders = 0;
+
+    [HideInInspector]
+    public float targetAngle = 0;
 
     private void Awake()
     {
@@ -40,6 +49,8 @@ public class WingSurface : MonoBehaviour
         {
             rig = GetComponentInParent<Rigidbody>();
         }
+
+
 
         IsRudder = false;
         IsInverse = false;
@@ -54,7 +65,7 @@ public class WingSurface : MonoBehaviour
     {
 
         // Different angles depending on positive or negative deflection.
-        float targetAngle = targetDeflec > 0f ? targetDeflec * maxDeflectionAtPos : targetDeflec * minDeflectionAtNeg;
+        targetAngle = targetDeflec > 0f ? targetDeflec * maxDeflectionAtPos : targetDeflec * minDeflectionAtNeg;
         //move models controls surfaces
         AnimateControlSurfaces(targetAngle);
     
@@ -66,7 +77,9 @@ public class WingSurface : MonoBehaviour
 
             // Asin(x) checks if x > 1 or x < -1 is not a number.
             if (float.IsNaN(maxAvailableDeflection) == false)
+            {
                 targetAngle *= Mathf.Clamp01(maxAvailableDeflection);
+            }
         }
 
         //calculates the angle of attack
@@ -87,18 +100,25 @@ public class WingSurface : MonoBehaviour
         {
             if (!IsRudder)
             {
-                controlSurfaceBody.transform.localRotation = Quaternion.Euler(-90 + targetAngle, 0, 0);
+                flap = Mathf.MoveTowards(flap, targetAngle, rotSpeed * Time.deltaTime);
+                controlSurfaceBody.transform.localRotation = Quaternion.Euler(controlSurfacesOrientation.x + flap, controlSurfacesOrientation.y, controlSurfacesOrientation.z);
             }
             else if(IsRudder && !IsInverse)
             {
-                controlSurfaceBody.transform.localRotation = Quaternion.Euler(0, -90 + targetAngle, 0);
+                rudders = Mathf.MoveTowards(rudders, targetAngle, rotSpeed * Time.deltaTime);
+                controlSurfaceBody.transform.localRotation = Quaternion.Euler(controlSurfacesOrientation.x, controlSurfacesOrientation.y + rudders, controlSurfacesOrientation.z);
             }
 
             if(IsInverse && !IsRudder)
             {
-                controlSurfaceBody.transform.localRotation = Quaternion.Euler(-90 + targetAngle, 0 , 180);
+                aileron = Mathf.MoveTowards(aileron, targetAngle, rotSpeed * Time.deltaTime);
+                controlSurfaceBody.transform.localRotation = Quaternion.Euler(controlSurfacesOrientation.x + aileron, controlSurfacesOrientation.y, controlSurfacesOrientation.z);
             }
        
         }
     }
+
+
+
+   
 }

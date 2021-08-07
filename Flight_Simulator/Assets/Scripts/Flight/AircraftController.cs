@@ -7,6 +7,10 @@ public class AircraftController : MonoBehaviour
 {
     public Rigidbody bod { get; internal set; }
 
+    [Header("Flight system")]
+    public bool setSimpleFlightSystem = false;
+
+
     [Header("Tail")]
     public WingSurface rudder;
     public WingSurface leftElevator;
@@ -25,13 +29,14 @@ public class AircraftController : MonoBehaviour
     [Header("Engine")]
     public GameObject[] propeller;
     public float EngineRPM;
-
+    public AudioSource[] mixer;
 
     [Header("Aircraft Parameters")]
     [Space()]
     public float thrust = 6000f;
     public float power = 0f;
     public float weight = 1500.0f;
+    public int EngineRPMMin = 130;
 
     public flapState currentFlapState = flapState.normal;
     public enum flapState
@@ -41,8 +46,6 @@ public class AircraftController : MonoBehaviour
         raised = 2
     }
 
-
-
     private float scrollSens = 2.0f;
     private float zAngle;
     private float previousZEuler = 0;
@@ -50,7 +53,10 @@ public class AircraftController : MonoBehaviour
 
     private int flapToggleInt = 0;
 
-    public AudioSource mixer;
+
+    private WingController[] controllers;
+
+    
 
     void InitPlane()
     {
@@ -88,6 +94,8 @@ public class AircraftController : MonoBehaviour
         {
             Debug.LogWarning("No Right flap found!");
         }
+
+        controllers = GetComponentsInChildren<WingController>();
     }
 
     private void Start()
@@ -96,21 +104,35 @@ public class AircraftController : MonoBehaviour
         bod = GetComponent<Rigidbody>();
         power = 0;
         bod.mass = weight;
-        mixer.pitch = 0;
+        foreach (var sound in mixer)
+        {
+            sound.pitch = 0;
+        }
         StartCoroutine(ToggleFLap());
 
-
+       foreach (var system in controllers)
+       {
+         system.SetSystemSimple = setSimpleFlightSystem;
+       }
     }
 
     private void Update()
     {
+        Inputs();
 
-        if(rudder != null)
+       
+
+    }
+
+
+    void Inputs()
+    {
+        if (rudder != null)
         {
             rudder.targetDeflec = Input.GetAxis("Yaw");
         }
 
-        if(leftElevator != null && rightElevator != null)
+        if (leftElevator != null && rightElevator != null)
         {
             leftElevator.targetDeflec = -Input.GetAxis("Pitch");
             rightElevator.targetDeflec = -Input.GetAxis("Pitch");
@@ -118,7 +140,7 @@ public class AircraftController : MonoBehaviour
 
         if (wheels != null)
         {
-            if(Input.GetKeyDown(KeyCode.B))
+            if (Input.GetKeyDown(KeyCode.B))
             {
                 breakTorque = breakTorque > 0 ? 0 : 100.0f;
             }
@@ -130,11 +152,11 @@ public class AircraftController : MonoBehaviour
             {
 
                 StartCoroutine(ToggleFLap());
-                
-            } 
+
+            }
         }
 
-        if(aileronLeft != null)
+        if (aileronLeft != null)
         {
             aileronLeft.targetDeflec = -Input.GetAxis("Roll");
         }
@@ -145,23 +167,6 @@ public class AircraftController : MonoBehaviour
 
         power += 1f * scrollSens * Input.GetAxis("MWheelD") * Time.deltaTime;
         power = Mathf.Clamp01(power);
-
-
-        
-        
-
-        if (mixer.pitch >= 1.6)
-        {
-            mixer.pitch = 1.6f;
-        }
-        else
-        {
-            mixer.pitch = zAngle /10;
-        }
-        
-
-
-
     }
 
     // Update is called once per frame
@@ -170,7 +175,9 @@ public class AircraftController : MonoBehaviour
 
         CalculateRPM();
 
-        if (EngineRPM > 130)
+        SetControllerParams();
+
+        if (EngineRPM > EngineRPMMin)
         {
             bod.AddRelativeForce(Vector3.forward * (thrust * power), ForceMode.Force);
         }
@@ -181,6 +188,23 @@ public class AircraftController : MonoBehaviour
             wheel.brakeTorque = breakTorque;
             wheel.motorTorque = 0.01f;
         }
+
+        //Engine sounds
+        float clamp = Mathf.Clamp((zAngle / 10f), 0.0f, 1.8f);
+
+        foreach (var sound in mixer)
+        {
+            sound.pitch = clamp;
+        }
+    }
+
+    void SetControllerParams()
+    {
+        foreach (var parms in controllers)
+        {
+            parms.Thrust = thrust;
+            parms.power = power;
+        }
     }
 
 
@@ -188,8 +212,8 @@ public class AircraftController : MonoBehaviour
     {
         
         currentZEuler = propeller[0].transform.localRotation.eulerAngles.z;
-        
         float degreesPerSec = Mathf.Abs(currentZEuler - previousZEuler) / Time.fixedDeltaTime;
+
         //0.166666666667f is from a webstie for calculating rpm from Deg/Sec
         EngineRPM = 0.166666666667f * degreesPerSec;
         Mathf.Floor(EngineRPM);
@@ -201,16 +225,13 @@ public class AircraftController : MonoBehaviour
         }
         else
         {
-            zAngle = Mathf.LerpAngle(zAngle, (thrust*2) * power * Time.deltaTime, Time.deltaTime / propeller[0].transform.localRotation.eulerAngles.z);
+            zAngle = Mathf.LerpAngle(zAngle, thrust* power * Time.deltaTime, Time.deltaTime);
 
             foreach (var i in propeller)
             {
                 i.transform.Rotate(0.0f, 0.0f, zAngle, Space.Self);
             }
-        }
-
-      
-        
+        } 
     }
 
 

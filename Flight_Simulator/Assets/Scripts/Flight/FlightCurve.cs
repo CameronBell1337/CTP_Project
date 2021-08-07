@@ -38,4 +38,16 @@ public class FlightCurve : ScriptableObject
 		//overrides curve
 		lift.keys = newCurve;
 	}
+
+
+	[HideInInspector]
+	public float defaultAoALift = 0.0f;
+	[HideInInspector]
+	public float maxLiftPositive = 1.1f;
+	[HideInInspector]
+	public float minLiftPositive = 0.6f;
+	[HideInInspector]
+	public float criticalAngle = 16.0f;
+	[HideInInspector]
+	public float stallingAngle = 20.0f;
 }

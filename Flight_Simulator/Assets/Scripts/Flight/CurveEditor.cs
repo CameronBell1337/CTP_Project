@@ -5,11 +5,16 @@ using UnityEngine;
 [CustomEditor(typeof(FlightCurve))]
 public class CurveEditor : Editor
 {
-	private float defaultAoALift = 0.0f;
-	private float maxLiftPositive = 1.1f;
-	private float minLiftPositive = 0.6f;
-	private float criticalAngle = 16.0f;
-	private float stallingAngle = 20.0f;
+	[HideInInspector]
+	public float defaultAoALift = 0.0f;
+	[HideInInspector]
+	public float maxLiftPositive = 1.1f;
+	[HideInInspector]
+	public float minLiftPositive = 0.6f;
+	[HideInInspector]
+	public float criticalAngle = 16.0f;
+	[HideInInspector]
+	public float stallingAngle = 20.0f;
 
 	const float fPMax = 0.85f;
 	const float stallPadding = 0.1f;
@@ -82,6 +87,12 @@ public class CurveEditor : Editor
 		if(createCurve)
         {
 			curve.SetCurve(points.ToArray());
+
+			curve.stallingAngle = stallingAngle;
+			curve.criticalAngle = criticalAngle;
+			curve.defaultAoALift = defaultAoALift;
+			curve.minLiftPositive = minLiftPositive;
+			curve.maxLiftPositive = maxLiftPositive;
 			Repaint();
         }
 	}
