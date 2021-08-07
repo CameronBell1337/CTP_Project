@@ -1,20 +1,16 @@
 fileFormatVersion: 2
-guid: ae882b51d92bf794e8cfe5a1438be048
-timeCreated: 1496759609
+guid: 201761544b6d00d4f814c9e76621da41
+timeCreated: 1497867348
 licenseType: Store
 ModelImporter:
   serializedVersion: 21
   fileIDToRecycleName:
     100000: //RootNode
-    100002: Tree_2_Leaves
     400000: //RootNode
-    400002: Tree_2_Leaves
     2300000: //RootNode
-    2300002: Tree_2_Leaves
     3300000: //RootNode
-    3300002: Tree_2_Leaves
-    4300000: Tree_2
-    4300002: Tree_2_Leaves
+    4300000: Rock_Block_1x3x1
+    9500000: //RootNode
   materials:
     importMaterials: 1
     materialName: 0
