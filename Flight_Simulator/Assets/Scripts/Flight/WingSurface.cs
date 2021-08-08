@@ -50,11 +50,6 @@ public class WingSurface : MonoBehaviour
             rig = GetComponentInParent<Rigidbody>();
         }
 
-
-
-        IsRudder = false;
-        IsInverse = false;
-
     }
     private void Start()
     {
@@ -101,19 +96,26 @@ public class WingSurface : MonoBehaviour
             if (!IsRudder)
             {
                 flap = Mathf.MoveTowards(flap, targetAngle, rotSpeed * Time.deltaTime);
-                controlSurfaceBody.transform.localRotation = Quaternion.Euler(controlSurfacesOrientation.x + flap, controlSurfacesOrientation.y, controlSurfacesOrientation.z);
+                controlSurfaceBody.transform.localRotation = Quaternion.Euler(controlSurfacesOrientation.x, controlSurfacesOrientation.y, controlSurfacesOrientation.z);
             }
-            else if(IsRudder && !IsInverse)
+            
+            if(IsRudder)
             {
                 rudders = Mathf.MoveTowards(rudders, targetAngle, rotSpeed * Time.deltaTime);
                 controlSurfaceBody.transform.localRotation = Quaternion.Euler(controlSurfacesOrientation.x, controlSurfacesOrientation.y + rudders, controlSurfacesOrientation.z);
             }
-
+            
             if(IsInverse && !IsRudder)
             {
                 aileron = Mathf.MoveTowards(aileron, targetAngle, rotSpeed * Time.deltaTime);
                 controlSurfaceBody.transform.localRotation = Quaternion.Euler(controlSurfacesOrientation.x + aileron, controlSurfacesOrientation.y, controlSurfacesOrientation.z);
             }
+            else if(!IsInverse && !IsRudder)
+            {
+                aileron = Mathf.MoveTowards(aileron, targetAngle, rotSpeed * Time.deltaTime);
+                controlSurfaceBody.transform.localRotation = Quaternion.Euler(controlSurfacesOrientation.x + aileron, controlSurfacesOrientation.y, controlSurfacesOrientation.z);
+            }
+           
        
         }
     }

@@ -7,11 +7,16 @@ public class AircraftController : MonoBehaviour
 {
     public Rigidbody bod { get; internal set; }
 
-    [Header("Flight system")]
+    [Header("Test out experimental system")]
+    [Tooltip("Uses of simplified or more complex flight system (STILL BUGGY AND EXPERIMENTAL!)")]
     public bool setSimpleFlightSystem = false;
 
-
     [Header("Tail")]
+    [Space()]
+
+
+
+    [Header("Flight System")]
     public WingSurface rudder;
     public WingSurface leftElevator;
     public WingSurface rightElevator;
@@ -36,7 +41,7 @@ public class AircraftController : MonoBehaviour
     public float thrust = 6000f;
     public float power = 0f;
     public float weight = 1500.0f;
-    public int EngineRPMMin = 130;
+    public int minRequiredEngineRPM = 130;
 
     public flapState currentFlapState = flapState.normal;
     public enum flapState
@@ -119,11 +124,7 @@ public class AircraftController : MonoBehaviour
     private void Update()
     {
         Inputs();
-
-       
-
     }
-
 
     void Inputs()
     {
@@ -177,7 +178,7 @@ public class AircraftController : MonoBehaviour
 
         SetControllerParams();
 
-        if (EngineRPM > EngineRPMMin)
+        if (EngineRPM > minRequiredEngineRPM)
         {
             bod.AddRelativeForce(Vector3.forward * (thrust * power), ForceMode.Force);
         }

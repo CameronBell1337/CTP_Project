@@ -170,7 +170,7 @@ MonoBehaviour:
   thrust: 1500
   power: 0
   weight: 954
-  EngineRPMMin: 130
+  minRequiredEngineRPM: 130
   currentFlapState: 0
 --- !u!1 &3596409956141959649
 GameObject:
@@ -391,7 +391,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.5
       inSlope: 0
       outSlope: 0
       tangentMode: 0

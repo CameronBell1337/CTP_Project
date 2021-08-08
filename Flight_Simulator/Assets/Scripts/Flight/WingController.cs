@@ -172,20 +172,23 @@ public class WingController : MonoBehaviour
         lCoeff = wing.GetLiftCurAoA(AoA);
         dCoeff = wing.GetDragCurAoA(AoA);
 
-        lift = localVelocity.sqrMagnitude * lCoeff * GetWingArea * lm;
-        drag = localVelocity.sqrMagnitude * dCoeff * GetWingArea * dm;
+        //deltaP = 1/2 * cL * airDens * airFlow * Area - Airflow ignored 
+        lift = 0.5f* (lCoeff * localVelocity.sqrMagnitude * GetWingArea * lm);
+
+        //deltaP = 1/2 * cD * airDens * airFlow * Area - Airflow ignored
+        drag = 0.5f* (dCoeff * localVelocity.sqrMagnitude  * GetWingArea * dm);
 
         lift *= -Mathf.Sign(localVelocity.y);
 
         //Cross Section of airfoil needed as lift is always perpendicular to the direction of airflow
         liftDir = Vector3.Cross(bod.velocity, transform.right).normalized;
 
-        //HAD TO CLAMP AS BIGGER AIRCRAFT WOULD GO OUT OF CONTROL BECAUSE OF INACCURATE OR OUT OF SCORE FLOATS
+        //HAD TO CLAMP AS BIGGER AIRCRAFT WOULD GO OUT OF CONTROL BECAUSE OF INACCURATE OR OUT OF SCOPE FLOATS
         bod.AddForceAtPosition(Vector3.ClampMagnitude(liftDir * lift, maxForce),
             ForceApply,
             ForceMode.Force);
 
-        //HAD TO CLAMP AS BIGGER AIRCRAFT WOULD GO OUT OF CONTROL BECAUSE OF INACCURATE OR OUT OF SCORE FLOATS
+        //HAD TO CLAMP AS BIGGER AIRCRAFT WOULD GO OUT OF CONTROL BECAUSE OF INACCURATE OR OUT OF SCOPE FLOATS
         //Drag always opposite of the current velocity
         bod.AddForceAtPosition(Vector3.ClampMagnitude(-bod.velocity.normalized * drag, maxForce),
             ForceApply,
@@ -235,9 +238,9 @@ public class WingController : MonoBehaviour
         float liftCo = wing.GetLiftCurAoA(_aoa);
         float dragCo = wing.GetDragCurAoA(_aoa);
 
-        Vector3 lift = liftDir * liftCo * dP * GetWingArea;
+        Vector3 lift = liftDir *   liftCo * dP * GetWingArea;
         
-        Vector3 drag = dragDir * dragCo * dP * GetWingArea;
+        Vector3 drag = dragDir *  dragCo * dP * GetWingArea;
         //A really small negative number so doesnt steer off to the side
         Vector3 angularMomentum = -transform.forward * -0.02045139f * dP * GetWingArea * wingDimention.y;
 
