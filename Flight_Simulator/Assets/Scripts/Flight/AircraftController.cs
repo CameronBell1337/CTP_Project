@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class AircraftController : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class AircraftController : MonoBehaviour
     [Tooltip("Uses of simplified or more complex flight system (STILL BUGGY AND EXPERIMENTAL!)")]
     public bool setSimpleFlightSystem = false;
 
-    [Header("Tail")]
+    [Header("Tail Control Surfaces")]
     [Space()]
 
 
@@ -21,7 +22,7 @@ public class AircraftController : MonoBehaviour
     public WingSurface leftElevator;
     public WingSurface rightElevator;
 
-    [Header("Wings")]
+    [Header("Wings Control Surfaces")]
     public WingSurface aileronLeft;
     public WingSurface aileronRight;
     public WingSurface flapLeft;
@@ -29,21 +30,36 @@ public class AircraftController : MonoBehaviour
 
     [Header("Wheels")]
     public List<WheelCollider> wheels;
-    public float breakTorque = 100f;
+    public float breakTorque = 1000.0f;
+    public float breakTouqueMax = 1000.0f;
 
     [Header("Engine")]
     public GameObject[] propeller;
     public float EngineRPM;
+    public int minRequiredEngineRPM = 130;
     public AudioSource[] mixer;
+    public float thrust = 6000f;
 
     [Header("Aircraft Parameters")]
     [Space()]
-    public float thrust = 6000f;
     public float power = 0f;
     public float weight = 1500.0f;
-    public int minRequiredEngineRPM = 130;
-
+    
+    [Header("Current Flap State")]
     public flapState currentFlapState = flapState.normal;
+
+    [Header("Controls")]
+    [Range(-1, 1)]
+    public float pitch;
+    [Range(-1, 1)]
+    public float yaw;
+    [Range(-1, 1)]
+    public float roll;
+
+
+    private Text HUD = null;
+
+
     public enum flapState
     {
         normal = 0,
@@ -59,7 +75,7 @@ public class AircraftController : MonoBehaviour
     private int flapToggleInt = 0;
 
 
-    private WingController[] controllers;
+    private AerodynamicController[] surface;
 
     
 
@@ -100,11 +116,12 @@ public class AircraftController : MonoBehaviour
             Debug.LogWarning("No Right flap found!");
         }
 
-        controllers = GetComponentsInChildren<WingController>();
+        surface = GetComponentsInChildren<AerodynamicController>();
     }
 
     private void Start()
     {
+        HUD = GameObject.FindGameObjectWithTag("HUD").GetComponent<Text>();
         InitPlane();
         bod = GetComponent<Rigidbody>();
         power = 0;
@@ -115,7 +132,7 @@ public class AircraftController : MonoBehaviour
         }
         StartCoroutine(ToggleFLap());
 
-       foreach (var system in controllers)
+       foreach (var system in surface)
        {
          system.SetSystemSimple = setSimpleFlightSystem;
        }
@@ -124,26 +141,41 @@ public class AircraftController : MonoBehaviour
     private void Update()
     {
         Inputs();
+
+        UIElements();
     }
 
     void Inputs()
     {
+        pitch = Input.GetAxis("Pitch");
+        yaw = Input.GetAxis("Yaw");
+        roll = Input.GetAxis("Roll");
+
         if (rudder != null)
         {
-            rudder.targetDeflec = Input.GetAxis("Yaw");
+            rudder.targetDeflec = yaw;
         }
 
         if (leftElevator != null && rightElevator != null)
         {
-            leftElevator.targetDeflec = -Input.GetAxis("Pitch");
-            rightElevator.targetDeflec = -Input.GetAxis("Pitch");
+            leftElevator.targetDeflec = -pitch;
+            rightElevator.targetDeflec = -pitch;
+        }
+
+        if (aileronLeft != null)
+        {
+            aileronLeft.targetDeflec = -roll;
+        }
+        if (aileronRight != null)
+        {
+            aileronRight.targetDeflec = roll;
         }
 
         if (wheels != null)
         {
             if (Input.GetKeyDown(KeyCode.B))
             {
-                breakTorque = breakTorque > 0 ? 0 : 100.0f;
+                breakTorque = breakTorque > 0 ? 0 : breakTouqueMax;
             }
         }
 
@@ -157,14 +189,7 @@ public class AircraftController : MonoBehaviour
             }
         }
 
-        if (aileronLeft != null)
-        {
-            aileronLeft.targetDeflec = -Input.GetAxis("Roll");
-        }
-        if (aileronRight != null)
-        {
-            aileronRight.targetDeflec = Input.GetAxis("Roll");
-        }
+       
 
         power += 1f * scrollSens * Input.GetAxis("MWheelD") * Time.deltaTime;
         power = Mathf.Clamp01(power);
@@ -201,7 +226,7 @@ public class AircraftController : MonoBehaviour
 
     void SetControllerParams()
     {
-        foreach (var parms in controllers)
+        foreach (var parms in surface)
         {
             parms.Thrust = thrust;
             parms.power = power;
@@ -269,5 +294,18 @@ public class AircraftController : MonoBehaviour
         }
         yield return new WaitForSeconds(.1f);
         flapToggleInt++;
+    }
+
+    void UIElements()
+    {
+        float mPs2Knots = bod.velocity.magnitude * 1.943844f;
+        float meters2Feet = transform.position.y * 3.28084f;
+        float power2String = power * 100;
+        HUD.text = "Speed: " + mPs2Knots.ToString("000.00") + " kn\n";
+        HUD.text += "Altitude: " + meters2Feet.ToString("0000.00") + " ft\n";
+        HUD.text += "Engine Power: " + power2String.ToString("000") + "%\n";
+        HUD.text += breakTorque > 0 ? "Brakes: ON" + "\n" : "Brakes: OFF" + "\n";
+        HUD.text += "Flaps: " + currentFlapState.ToString() + "\n";
+       
     }
 }

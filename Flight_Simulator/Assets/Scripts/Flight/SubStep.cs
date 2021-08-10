@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+//Sourced from Ivan Pensionerov @ https://github.com/gasgiant
 public struct MandAM
 {
-    //Recreation of another Vector3 for fixing jittering issues
     //Momentum and angular momentum sub step
     public Vector3 m; public Vector3 aM;
     public MandAM(Vector3 _m, Vector3 _aM) 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WingController : MonoBehaviour
+public class AerodynamicController : MonoBehaviour
 {
 
     //A = span^2 * cord
@@ -28,7 +28,7 @@ public class WingController : MonoBehaviour
     [Tooltip("Flight Curve")]
     public FlightCurve wing;
     [Tooltip("Max Forces Variable for bigger planes need clamping due to calculation errors occuring")]
-    public float maxForce = 100000f;
+    public float maxCoefficientForce = 100000f;
 
 
 
@@ -158,24 +158,23 @@ public class WingController : MonoBehaviour
     {
         Vector3 ForceApply = (applyToCentre) ? bod.transform.TransformPoint(bod.centerOfMass) : transform.position;
 
-
-        //Check f it is a flap as will want to apply to same direction flap is rotating towards rather than opposite.
-        Vector3 localVelocity = isFlap ? transform.InverseTransformDirection(bod.GetPointVelocity(transform.position)) : transform.InverseTransformDirection(bod.GetPointVelocity(transform.position));
-
-        localVelocity.x = 0f;
-
-        AoA = Vector3.Angle(Vector3.forward, localVelocity);
-
         
+        //Get world velocity of surface 
+        Vector3 localVelocity = transform.InverseTransformDirection(bod.GetPointVelocity(transform.position));
+        //Discard the axis that goes perpendicular to the chord
+        localVelocity = new Vector3(0.0f, localVelocity.y, localVelocity.z);
+
+        //gets the forward direction of the surface and calculates the angle at which the surface differs from
+        AoA = Vector3.Angle(Vector3.forward, localVelocity);
 
         //CalculateAoA(localVelocity);
         lCoeff = wing.GetLiftCurAoA(AoA);
         dCoeff = wing.GetDragCurAoA(AoA);
 
-        //deltaP = 1/2 * cL * airDens * airFlow * Area - Airflow ignored 
+        //deltaP = 1/2 * cL * airDens * airFlow * Area (Airflow ignored)
         lift = 0.5f* (lCoeff * localVelocity.sqrMagnitude * GetWingArea * lm);
 
-        //deltaP = 1/2 * cD * airDens * airFlow * Area - Airflow ignored
+        //deltaP = 1/2 * cD * airDens * airFlow * Area  (Airflow ignored)
         drag = 0.5f* (dCoeff * localVelocity.sqrMagnitude  * GetWingArea * dm);
 
         lift *= -Mathf.Sign(localVelocity.y);
@@ -184,13 +183,13 @@ public class WingController : MonoBehaviour
         liftDir = Vector3.Cross(bod.velocity, transform.right).normalized;
 
         //HAD TO CLAMP AS BIGGER AIRCRAFT WOULD GO OUT OF CONTROL BECAUSE OF INACCURATE OR OUT OF SCOPE FLOATS
-        bod.AddForceAtPosition(Vector3.ClampMagnitude(liftDir * lift, maxForce),
+        bod.AddForceAtPosition(Vector3.ClampMagnitude(liftDir * lift, maxCoefficientForce),
             ForceApply,
             ForceMode.Force);
 
         //HAD TO CLAMP AS BIGGER AIRCRAFT WOULD GO OUT OF CONTROL BECAUSE OF INACCURATE OR OUT OF SCOPE FLOATS
         //Drag always opposite of the current velocity
-        bod.AddForceAtPosition(Vector3.ClampMagnitude(-bod.velocity.normalized * drag, maxForce),
+        bod.AddForceAtPosition(Vector3.ClampMagnitude(-bod.velocity.normalized * drag, maxCoefficientForce),
             ForceApply,
             ForceMode.Force);
     }
@@ -207,7 +206,7 @@ public class WingController : MonoBehaviour
         currentFT = (ftThisStep + ftPred) * 0.5f;
 
         bod.AddForce(currentFT.m);
-        bod.AddForce(currentFT.aM);
+        //bod.AddForce(currentFT.aM);
 
     }
 
@@ -222,18 +221,16 @@ public class WingController : MonoBehaviour
         *little bit of surface friction is created along the chord of wing surface
         */
         Vector3 airVel = transform.InverseTransformDirection(worldAirVel);
-        airVel = new Vector3(airVel.x, airVel.y);
+        airVel = new Vector3(0.0f, airVel.y, airVel.z);
 
         Vector3 dragDir = transform.TransformDirection(airVel.normalized);
         Vector3 liftDir = Vector3.Cross(dragDir, transform.forward);
 
         float dP = 0.5f * aD * airVel.sqrMagnitude;
 
-        Vector3 localVelocity = transform.InverseTransformDirection(bod.GetPointVelocity(transform.position));
-
        float _aoa = Mathf.Atan2(airVel.y, -airVel.x);
 
-        Debug.Log(AngleOfAttack);
+      
 
         float liftCo = wing.GetLiftCurAoA(_aoa);
         float dragCo = wing.GetDragCurAoA(_aoa);
@@ -339,8 +336,12 @@ public class WingController : MonoBehaviour
             {
                 Gizmos.color = Color.red;
                 Gizmos.DrawWireSphere(transform.position, .2f);
+
+                
             }
+
         }
+        
         Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
         Gizmos.DrawCube(Vector3.zero, new Vector3(wingDimention.x, 0f, wingDimention.y));
         Gizmos.matrix = oldMatrix;

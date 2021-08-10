@@ -18,7 +18,7 @@ public class WingSurface : MonoBehaviour
 
     [SerializeField]
     [Tooltip("Access to the wing control surface may be attached too.")]
-    private WingController wing = null;
+    private AerodynamicController surface = null;
 
     [Tooltip("Max force surface can stand before controls 'stiffen up'")]
     public float maxForce = 5000f;
@@ -45,7 +45,7 @@ public class WingSurface : MonoBehaviour
 
     private void Awake()
     {
-        if(wing != null)
+        if(surface != null)
         {
             rig = GetComponentInParent<Rigidbody>();
         }
@@ -65,9 +65,9 @@ public class WingSurface : MonoBehaviour
         AnimateControlSurfaces(targetAngle);
     
         // How much you can deflect, depends on how much force it would take
-        if (rig != null && wing != null && rig.velocity.sqrMagnitude > 1f)
+        if (rig != null && surface != null && rig.velocity.sqrMagnitude > 1f)
         {
-            float torqueAtMaxDeflection = rig.velocity.sqrMagnitude * wing.GetWingArea;
+            float torqueAtMaxDeflection = rig.velocity.sqrMagnitude * surface.GetWingArea;
             float maxAvailableDeflection = Mathf.Asin(maxForce / torqueAtMaxDeflection) * Mathf.Rad2Deg;
 
             // Asin(x) checks if x > 1 or x < -1 is not a number.

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(FlightCurve))]
 public class CurveEditor : Editor
 {
@@ -100,3 +101,4 @@ public class CurveEditor : Editor
 	
 
 }
+#endif
